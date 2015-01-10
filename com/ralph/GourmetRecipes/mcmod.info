@@ -1,0 +1,21 @@
+{
+  "modListVersion": 2,
+  "modList": [{
+    "modid": "NewMod",
+    "name": "Ralph's new mod",
+    "description": "Explores how to create a new mod...",
+    "version": "0.0.0",
+    "mcversion": "1.7.10",
+    "url": "http://newmod.ralph.com",
+    "updateUrl": "",
+    "authorList": [ "Ralph_L" ],
+    "credits": "Authored by Ralph_L",
+    "logoFile": "/newmod.png",
+    "screenshots": [ "shot1.png", "shot2.png" ],
+    "parent": "",
+    "requiredMods": [ "Forge" ],
+    "dependencies": [  ],
+    "dependants": [ "MySpecialSubMod" ],
+    "useDependencyInformation": false
+  }]
+}
