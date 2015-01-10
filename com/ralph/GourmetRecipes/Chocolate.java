@@ -15,11 +15,14 @@ public class Chocolate extends ItemFood {
 						int healAmount, 
 						float saturationModifier, 
 						boolean wolvesFavorite, 
-						PotionEffect... effects) {
+						PotionEffect effect1,
+						PotionEffect effect2,
+						PotionEffect effect3) {
 		// TODO Auto-generated constructor stub
 	    super(healAmount, saturationModifier, wolvesFavorite);
 	    this.setUnlocalizedName(unlocalizedName);
-	    this.setTextureName(Main.MODID + ":" + unlocalizedName);
+	    System.out.println("[GourmetRecipes]: " + GourmetRecipes.MODID + ":" + unlocalizedName);
+	    this.setTextureName(GourmetRecipes.MODID + ":" + unlocalizedName);
 	    this.setCreativeTab(CreativeTabs.tabFood);
 	    this.effects = effects;
 
@@ -28,11 +31,12 @@ public class Chocolate extends ItemFood {
 	@Override
 	protected void onFoodEaten(ItemStack stack, World world, EntityPlayer player) {
 	    super.onFoodEaten(stack, world, player);
-	        
+	    /*
 	    for (int i = 0; i < effects.length; i ++) {
 	        if (!world.isRemote && effects[i] != null && effects[i].getPotionID() > 0)
 	            player.addPotionEffect(new PotionEffect(this.effects[i].getPotionID(), this.effects[i].getDuration(), this.effects[i].getAmplifier(), this.effects[i].getIsAmbient()));
-	    }
+	    } */
+
 	}
 	
 }
