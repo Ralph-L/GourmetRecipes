@@ -24,7 +24,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 //import cpw.mods.fml.common.network.NetworkMod; // not used in 1.7
 import cpw.mods.fml.common.registry.GameRegistry;
 
-@Mod(modid="RalphsMod", name="GourmetRecipes", version="0.0.0")
+@Mod(modid="RalphsMod", name="GourmetRecipes", version="1.0.0")
 //@NetworkMod(clientSideRequired=true) // not used in 1.7
 public class GourmetRecipes {
 
@@ -38,7 +38,7 @@ public class GourmetRecipes {
 
 
 	// The instance of your mod that Forge uses.
-	@Instance(value = "RalphsMod")
+	@Instance(value = "GourmetRecipes")
 	public static GourmetRecipes instance;
 
 	// Says where the client and server 'proxy' code is loaded.
@@ -48,9 +48,8 @@ public class GourmetRecipes {
 	@EventHandler // used in 1.6.2
 	//@PreInit    // used in 1.5.2
 	public void preInit(FMLPreInitializationEvent event) {
-		System.out.println("Instantiating: ground");
-		smileyBlock = new SmileyBlock();
 
+		smileyBlock = new SmileyBlock();
 		smileyOre = new SmileyOre(Material.rock);
 		smileyDrop = new SmileyDrop();
 		smileyIngot = new SmileyIngot();
