@@ -29,12 +29,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
 public class GourmetRecipes {
 
 	public static final String MODID = "gourmetrecipes";
-	// See Basic items tutorial for Generic Ingot
-	public static Item smileyDrop;
-	public static Item smileyIngot;
-	public static Block smileyBlock;
-	public static Block smileyOre;
 	public static Item chocolate;
+	public static Item meringue;
 
 
 	// The instance of your mod that Forge uses.
@@ -49,22 +45,17 @@ public class GourmetRecipes {
 	//@PreInit    // used in 1.5.2
 	public void preInit(FMLPreInitializationEvent event) {
 
-		smileyBlock = new SmileyBlock();
-		smileyOre = new SmileyOre(Material.rock);
-		smileyDrop = new SmileyDrop();
-		smileyIngot = new SmileyIngot();
-		
-		
-		GameRegistry.registerBlock(smileyBlock, "smileyBlock");
-		GameRegistry.registerBlock(smileyOre, "smileyOre");
-		GameRegistry.registerItem(smileyDrop, "smileyDrop");
-		// End Basic Blocks
-		
 		GameRegistry.registerItem(chocolate = new Chocolate("chocolate", 2, 0.2f, false, 
 			    new PotionEffect(Potion.moveSpeed.id, 1200, 1), 
 			    new PotionEffect(Potion.jump.id, 600, 0), 
 			    new PotionEffect(Potion.regeneration.id, 200, 1))
 			    .setAlwaysEdible(), "chocolate");
+
+		GameRegistry.registerItem(meringue = new Meringue("meringue", 2, 0.2f, false, 
+			    new PotionEffect(Potion.moveSpeed.id, 1200, 1), 
+			    new PotionEffect(Potion.jump.id, 600, 0), 
+			    new PotionEffect(Potion.regeneration.id, 200, 1))
+			    .setAlwaysEdible(), "meringue");
 
 		proxy.registerRenderers();
 	}
@@ -74,14 +65,11 @@ public class GourmetRecipes {
 	public void load(FMLInitializationEvent event) {
 		proxy.registerRenderers();
 		//*****
-        ItemStack smileyBlockStack            = new ItemStack(smileyBlock);
-        ItemStack smileyOreStack  = new ItemStack(smileyOre);
-        ItemStack smileyDropStack  = new ItemStack(smileyDrop);
-        ItemStack smileyIngotStack        = new ItemStack(smileyIngot);
         ItemStack chocolateStack = new ItemStack(chocolate);
-        ItemStack dirtStack = new ItemStack(Blocks.dirt);
         ItemStack cocaoStack = new ItemStack(Items.dye, 1, 3);
         ItemStack sugarStack = new ItemStack(Items.sugar);
+        ItemStack eggStack = new ItemStack(Items.egg);
+        ItemStack meringueStack = new ItemStack(meringue);
         
         
 //        GameRegistry.addShapelessRecipe(diamondsStack, dirtStack);
@@ -96,6 +84,10 @@ public class GourmetRecipes {
 */
         GameRegistry.addRecipe(chocolateStack, "xyx", "yxy", "xyx",
                 'x', cocaoStack, 'y', sugarStack);
+
+        GameRegistry.addRecipe(meringueStack, "   ", "xxx", "yyy",
+                'x', sugarStack, 'y', eggStack);
+
 /*
         GameRegistry.addSmelting(Block.stone.blockID, new ItemStack(
                 Block.stoneBrick), 0.1f);
