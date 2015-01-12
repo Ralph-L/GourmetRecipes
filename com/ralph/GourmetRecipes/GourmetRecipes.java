@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler; // used in 1.6.2
@@ -31,6 +32,7 @@ public class GourmetRecipes {
 	public static final String MODID = "gourmetrecipes";
 	public static Item chocolate;
 	public static Item meringue;
+	public static Block mixingBowl;
 
 
 	// The instance of your mod that Forge uses.
@@ -44,7 +46,15 @@ public class GourmetRecipes {
 	@EventHandler // used in 1.6.2
 	//@PreInit    // used in 1.5.2
 	public void preInit(FMLPreInitializationEvent event) {
+		
+		// Mixing Bowl
+		
+		mixingBowl = new MixingBowl(Material.ground);
+//        .setHardness(0.5F).setStepSound(Block.soundTypeGravel)
+//       .setBlockName("mixingBowl").setCreativeTab(CreativeTabs.tabBlock);
 
+		GameRegistry.registerBlock(mixingBowl, "mixingBowl");
+		
 		GameRegistry.registerItem(chocolate = new Chocolate("chocolate", 2, 0.2f, false, 
 			    new PotionEffect(Potion.moveSpeed.id, 1200, 1), 
 			    new PotionEffect(Potion.jump.id, 600, 0), 
@@ -65,11 +75,14 @@ public class GourmetRecipes {
 	public void load(FMLInitializationEvent event) {
 		proxy.registerRenderers();
 		//*****
+		ItemStack cobblestoneStack = new ItemStack(Blocks.cobblestone);
         ItemStack chocolateStack = new ItemStack(chocolate);
         ItemStack cocaoStack = new ItemStack(Items.dye, 1, 3);
         ItemStack sugarStack = new ItemStack(Items.sugar);
+        ItemStack ironStack = new ItemStack(Items.iron_ingot);
         ItemStack eggStack = new ItemStack(Items.egg);
         ItemStack meringueStack = new ItemStack(meringue);
+        ItemStack mixingBowlStack = new ItemStack(mixingBowl);
         
         
 //        GameRegistry.addShapelessRecipe(diamondsStack, dirtStack);
@@ -82,6 +95,9 @@ public class GourmetRecipes {
                 'x', dirtStack, 'y', gravelStack);
 
 */
+        
+        GameRegistry.addRecipe(mixingBowlStack, " i ", "c c", "ccc",
+        		'i', ironStack, 'c', cobblestoneStack);
         GameRegistry.addRecipe(chocolateStack, "xyx", "yxy", "xyx",
                 'x', cocaoStack, 'y', sugarStack);
 
