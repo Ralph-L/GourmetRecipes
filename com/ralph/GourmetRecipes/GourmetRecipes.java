@@ -2,6 +2,12 @@ package com.ralph.GourmetRecipes;
 
 //This Import list will grow longer with each additional tutorial.
 //It's not pruned between full class postings, unlike other tutorial code.
+import com.ralph.GourmetRecipes.Foods.Chocolate;
+import com.ralph.GourmetRecipes.Foods.Meringue;
+import com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowl;
+import com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowlGuiHandler;
+import com.ralph.GourmetRecipes.Machines.MixingBowl.TileEntityMixingBowl;
+
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -22,18 +28,18 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-//import cpw.mods.fml.common.network.NetworkMod; // not used in 1.7
+import cpw.mods.fml.common.network.NetworkRegistry; // not used in 1.7
 import cpw.mods.fml.common.registry.GameRegistry;
 
-@Mod(modid="RalphsMod", name="GourmetRecipes", version="1.0.0")
+@Mod(modid="GourmetRecipes", name="GourmetRecipes", version="1.0.0")
 //@NetworkMod(clientSideRequired=true) // not used in 1.7
 public class GourmetRecipes {
 
-	public static final String MODID = "gourmetrecipes";
+	public static final String MODID = "GourmetRecipes";
 	public static Item chocolate;
 	public static Item meringue;
 	public static Block mixingBowl;
-
+	
 
 	// The instance of your mod that Forge uses.
 	@Instance(value = "GourmetRecipes")
@@ -54,6 +60,7 @@ public class GourmetRecipes {
 //       .setBlockName("mixingBowl").setCreativeTab(CreativeTabs.tabBlock);
 
 		GameRegistry.registerBlock(mixingBowl, "mixingBowl");
+		GameRegistry.registerTileEntity(TileEntityMixingBowl.class, "mixingBowl");
 		
 		GameRegistry.registerItem(chocolate = new Chocolate("chocolate", 2, 0.2f, false, 
 			    new PotionEffect(Potion.moveSpeed.id, 1200, 1), 
@@ -74,6 +81,9 @@ public class GourmetRecipes {
 	//@Init       // used in 1.5.2
 	public void load(FMLInitializationEvent event) {
 		proxy.registerRenderers();
+	
+	    NetworkRegistry.INSTANCE.registerGuiHandler(this, new MixingBowlGuiHandler());
+		
 		//*****
 		ItemStack cobblestoneStack = new ItemStack(Blocks.cobblestone);
         ItemStack chocolateStack = new ItemStack(chocolate);
