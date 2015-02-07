@@ -1,7 +1,5 @@
 package com.ralph.GourmetRecipes;
 
-//This Import list will grow longer with each additional tutorial.
-//It's not pruned between full class postings, unlike other tutorial code.
 import com.ralph.GourmetRecipes.Foods.Chocolate;
 import com.ralph.GourmetRecipes.Foods.Meringue;
 import com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowl;
@@ -32,7 +30,6 @@ import cpw.mods.fml.common.network.NetworkRegistry; // not used in 1.7
 import cpw.mods.fml.common.registry.GameRegistry;
 
 @Mod(modid="GourmetRecipes", name="GourmetRecipes", version="1.0.0")
-//@NetworkMod(clientSideRequired=true) // not used in 1.7
 public class GourmetRecipes {
 
 	public static final String MODID = "GourmetRecipes";
@@ -50,14 +47,11 @@ public class GourmetRecipes {
 	public static CommonProxy proxy;
 
 	@EventHandler // used in 1.6.2
-	//@PreInit    // used in 1.5.2
 	public void preInit(FMLPreInitializationEvent event) {
 		
 		// Mixing Bowl
 		
 		mixingBowl = new MixingBowl(Material.ground);
-//        .setHardness(0.5F).setStepSound(Block.soundTypeGravel)
-//       .setBlockName("mixingBowl").setCreativeTab(CreativeTabs.tabBlock);
 
 		GameRegistry.registerBlock(mixingBowl, "mixingBowl");
 		GameRegistry.registerTileEntity(TileEntityMixingBowl.class, "mixingBowl");
@@ -78,7 +72,6 @@ public class GourmetRecipes {
 	}
 
 	@EventHandler // used in 1.6.2
-	//@Init       // used in 1.5.2
 	public void load(FMLInitializationEvent event) {
 		proxy.registerRenderers();
 	
@@ -94,34 +87,13 @@ public class GourmetRecipes {
         ItemStack meringueStack = new ItemStack(meringue);
         ItemStack mixingBowlStack = new ItemStack(mixingBowl);
         
-        
-//        GameRegistry.addShapelessRecipe(diamondsStack, dirtStack);
-
-//        GameRegistry.addShapelessRecipe(diamondsStack, dirtStack, dirtStack,
-//                dirtStack, dirtStack, dirtStack, dirtStack, new ItemStack(
-//                        Block.sand), gravelStack, cobbleStack);
-/*
-        GameRegistry.addRecipe(new ItemStack(Block.cobblestone), "xy", "yx",
-                'x', dirtStack, 'y', gravelStack);
-
-*/
-        
         GameRegistry.addRecipe(mixingBowlStack, " i ", "c c", "ccc",
         		'i', ironStack, 'c', cobblestoneStack);
         GameRegistry.addRecipe(chocolateStack, "xyx", "yxy", "xyx",
                 'x', cocaoStack, 'y', sugarStack);
-
         GameRegistry.addRecipe(meringueStack, "   ", "xxx", "yyy",
                 'x', sugarStack, 'y', eggStack);
 
-/*
-        GameRegistry.addSmelting(Block.stone.blockID, new ItemStack(
-                Block.stoneBrick), 0.1f);
-
-        FurnaceRecipes.smelting().addSmelting(Block.cloth.blockID, 15,
-                new ItemStack(Block.cloth, 1, 0), 0.1f);
-        //*****
-*/
 	}
 
 	@EventHandler // used in 1.6.2

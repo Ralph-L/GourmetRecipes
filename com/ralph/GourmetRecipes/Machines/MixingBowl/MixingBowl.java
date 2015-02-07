@@ -35,13 +35,13 @@ public class MixingBowl extends BlockContainer {
 		this.setCreativeTab(CreativeTabs.tabBlock);
 	}
 
-	
+
 	//@Override
 	public TileEntity createNewTileEntity(World world)
 	{
-	return new TileEntityMixingBowl();
+		return new TileEntityMixingBowl();
 	}
-	
+
 
 	@Override
 	public TileEntity createNewTileEntity(World world, int i) {
@@ -59,24 +59,18 @@ public class MixingBowl extends BlockContainer {
 		par1World.markBlockForUpdate(x, y, z);
 	}
 
-	//  NOTE! NO GUI THERE YET, GAME WILL CRASH!
 	/**
 	 * called everytime the player right clicks this block
 	 */
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int i, float a, float b, float c)
 	{
-		
-//		TileEntityGrinder tile_entity = (TileEntityGrinder)world.getTileEntity(x, y, z);
-//		System.out.println("MixingBowl r-clicked");
-		
+
 		TileEntityMixingBowl mixingBowl = (TileEntityMixingBowl)world.getTileEntity(x, y, z);
-// Crashes here!
 		player.openGui(GourmetRecipes.instance, 0, world, x, y, z);
 
 		return true;
-		
-		
+
 	}
 
 	/**

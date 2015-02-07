@@ -1,13 +1,21 @@
 package com.ralph.GourmetRecipes.Machines.MixingBowl;
 
 
+import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 /**
  *	See also: <a src="http://www.minecraftforge.net/wiki/Containers_and_GUIs">http://www.minecraftforge.net/wiki/Containers_and_GUIs</a>
@@ -15,30 +23,31 @@ import net.minecraft.tileentity.TileEntity;
  */
 public class TileEntityMixingBowl extends TileEntity implements IInventory{
 
-	private ItemStack mixingbowlInv[];
+	/**  Mixing bowl crafting matrix<br>
+	 *   Slot 10 is output result */
+	public ItemStack[] mixingbowlInv;
+	
+	private boolean isActive;
+
+	/** The number of ticks that the current item has been cooking for */
+	public int mixingbowlMixedTime = 0;
 
 	/** The number of ticks this recipe needs to process
 	 * Typical values between 30 and 300 (1 - 10 s) */
-	public int mixingbowlMixTime;
-
-	private boolean isActive;
-
-	/**
-	 * The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for
-	 */
-	public int mixingbowlItemMixTime;
-
-	/** The number of ticks that the current item has been cooking for */
-	public int mixingbowlMixedTime;
+	public int mixingbowlMixTime = 200;
 
 	public int front;
+
+	/** Variable to store what the craft result will be when mixing time is up */
+	private ItemStack mixResult;
 
 	public TileEntityMixingBowl()
 	{
 		mixingbowlInv = new ItemStack[10];
-		mixingbowlMixTime = 300;
-		mixingbowlItemMixTime = 0;
+		mixingbowlMixTime = 200;
 		mixingbowlMixedTime = 0;
+		mixResult = null;
+		this.canUpdate();
 	}
 
 	/**
@@ -64,7 +73,6 @@ public class TileEntityMixingBowl extends TileEntity implements IInventory{
 	 * Decrease the size of the stack in slot (first int arg) by the amount of the second int arg. Returns the new
 	 * stack.
 	 */
-	/*
 	@Override
 	public ItemStack decrStackSize(int slot, int amt) {
 		ItemStack stack = getStackInSlot(slot);
@@ -80,35 +88,7 @@ public class TileEntityMixingBowl extends TileEntity implements IInventory{
 		}
 		return stack;
 	}
-	*/
-	
-	
-	@Override
-	public ItemStack decrStackSize(int slot, int amt)
-	{
-		if (mixingbowlInv[slot] != null)
-		{
-			if (mixingbowlInv[slot].stackSize <= amt)
-			{
-				ItemStack itemstack = mixingbowlInv[slot];
-				mixingbowlInv[slot] = null;
-				return itemstack;
-			}
 
-			ItemStack itemstack1 = mixingbowlInv[slot].splitStack(amt);
-
-			if (mixingbowlInv[slot].stackSize == 0)
-			{
-				mixingbowlInv[slot] = null;
-			}
-
-			return itemstack1;
-		}
-		else
-		{
-			return null;
-		}
-	}
 
 	/**
 	 * When some containers are closed they call this on each slot, then drop whatever it returns as an EntityItem -
@@ -135,12 +115,15 @@ public class TileEntityMixingBowl extends TileEntity implements IInventory{
 	@Override
 	public void setInventorySlotContents(int slot, ItemStack itemStack)
 	{
+		//		System.out.println("TileEntity.setInventorySlotContents...");
+		// ??		MixingBowlRecipes.findMatchingRecipe(null, worldObj);
 		mixingbowlInv[slot] = itemStack;
 
 		if (itemStack != null && itemStack.stackSize > getInventoryStackLimit())
 		{
 			itemStack.stackSize = getInventoryStackLimit();
 		}
+
 	}
 
 	/**
@@ -226,9 +209,8 @@ public class TileEntityMixingBowl extends TileEntity implements IInventory{
 		front = tagCompound.getInteger("FrontDirection");
 		mixingbowlMixTime = tagCompound.getShort("BurnTime");
 		mixingbowlMixedTime = tagCompound.getShort("CookTime");
-		mixingbowlItemMixTime = getItemBurnTime(mixingbowlInv[1]);
 
-//		System.out.println("front:" + front);
+		//		System.out.println("front:" + front);
 	}
 
 	/**
@@ -254,101 +236,62 @@ public class TileEntityMixingBowl extends TileEntity implements IInventory{
 		}
 
 		par1NBTTagCompound.setTag("Items", nbttaglist);
-//		System.out.println("write:" + front);
-//		System.out.println("burn:" + mixingbowlMixTime);
+		//		System.out.println("write:" + front);
+		//		System.out.println("burn:" + mixingbowlMixTime);
 	}
 
 
-
 	/**
-	 * Returns an integer between 0 and the passed value representing how close the current item is to being completely
-	 * cooked
+	 * Ratio of Mixed Time over Total time required * 100
+	 * @return Percent progress
 	 */
-	public int getCookProgressScaled(int par1)
-	{
-		return (mixingbowlMixedTime * par1) / 300;
-	}
-
-	/**
-	 * Returns an integer between 0 and the passed value representing how much burn time is left on the current fuel
-	 * item, where 0 means that the item is exhausted and the passed value means that the item is fresh
-	 */
-	public int getBurnTimeRemainingScaled(int scalefactor)
-	{
-		int timeRem = mixingbowlMixTime - mixingbowlMixedTime;
-		System.out.println("getBurnTimeremainingScaled: " + mixingbowlMixedTime + ", " + mixingbowlMixTime);
-		System.out.println("getBurnTimeremainingScaled: " + timeRem);
-//		return (mixingbowlMixedTime * par1) / mixingbowlMixTime;
-		return timeRem/scalefactor;
+	public int getMixProgress() {
+		if (mixingbowlMixTime == 0) return 0;
+		return mixingbowlMixedTime * 100 / mixingbowlMixTime;
 	}
 
 	/**
 	 * Returns true if the furnace is currently burning
 	 */
-	public boolean isBurning()
+	public boolean isMixing()
 	{
-	//	return mixingbowlMixTime > 0; // ***************************************
-		return true;
+		return mixingbowlMixedTime > 0; // ***************************************
 	}
 
 	/**
 	 * Allows the entity to update its state. Overridden in most subclasses, e.g. the mob spawner uses this to count
 	 * ticks and creates a new spawn inside its implementation.
 	 */
+	@Override
 	public void updateEntity()
 	{
+
 		boolean var1 = this.mixingbowlMixTime > 0;
 		boolean var2 = false;
-		mixingbowlMixedTime++;
-		if (mixingbowlMixedTime >= mixingbowlMixTime) {
-			mixingbowlMixedTime = 0;
+
+		if (var1) {
+			isActive = true;
 		}
-		/*
-		if (this.mixingbowlMixTime > 0)
-		{
-			--this.mixingbowlMixTime;
-		}
-		if (!this.worldObj.isRemote)
-		{
-			if (this.mixingbowlMixTime == 0 && this.canSmelt())
-			{
-				this.mixingbowlItemMixTime = this.mixingbowlMixTime = getItemBurnTime(this.mixingbowlInv[1]);
-				if (this.mixingbowlMixTime > 0)
-				{
-					var2 = true;
-					if (this.mixingbowlInv[1] != null)
-					{
-						--this.mixingbowlInv[1].stackSize;
-						if (this.mixingbowlInv[1].stackSize == 0)
-						{
-							Item var3 = this.mixingbowlInv[1].getItem().getContainerItem();
-							this.mixingbowlInv[1] = var3 == null ? null : new ItemStack(var3);
-						}
-					}
-				}
-			}
-			if (this.isBurning() && this.canSmelt())
-			{
-				++this.mixingbowlMixedTime;
-				if (this.mixingbowlMixedTime == 200)
-				{
-					this.mixingbowlMixedTime = 0;
-					this.smeltItem();
-					var2 = true;
-				}
-			}
-			else
+
+		//		if (!this.worldObj.isRemote)
+		//		{
+		if (this.canMix()) { // (this.isMixing() && this.canSmelt()) {
+			++this.mixingbowlMixedTime;
+			if (this.mixingbowlMixedTime > mixingbowlMixTime)
 			{
 				this.mixingbowlMixedTime = 0;
-			}
-			if (var1 != this.mixingbowlMixTime > 0)
-			{
+				this.mixItem();
 				var2 = true;
-				this.validate();
 			}
 		}
+		else
+		{
+			this.mixingbowlMixedTime = 0;
+		}
+		//		}
+
 		boolean check = isActive;
-		isActive = isBurning();
+		isActive = isMixing();
 		if(isActive != check)
 		{
 			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
@@ -357,140 +300,116 @@ public class TileEntityMixingBowl extends TileEntity implements IInventory{
 		{
 			this.onInventoryChanged();
 		}
-		*/
+	
+		/*
+		if (mixingbowlInv[4] != null) {
+			if (mixingbowlInv[4].getItem() == Items.egg) {
+				ItemStack itemstack = new ItemStack(Items.cake);
+				mixingbowlInv[9] = itemstack;
+			}
+		} else {
+			mixingbowlInv[9] = null;
+		}
+		 */
 	}
+
 
 	private void onInventoryChanged() {
 		// TODO Auto-generated method stub
-		
+		System.out.println("Inv change: " + mixResult);
 	}
 
 	/**
-	 * Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
+	 * Returns true if the mixing bowl can mix a recipe, i.e. has source items, destination stack isn't full, etc.
 	 */
-	private boolean canSmelt()
+	private boolean canMix()
 	{
-		if (mixingbowlInv[0] == null)
-		{
-			return false;
+		// Make a copy of the current recipe
+		ItemStack[] currentRecipe = new ItemStack[9];
+		for (int i=0; i<9; ++i) {
+			currentRecipe[i] = null;
+			if (mixingbowlInv[i] != null) {
+				currentRecipe[i] = mixingbowlInv[i];
+				//				System.out.println("recipe: " + i + ", " + currentRecipe[i].getItem());
+			}
 		}
 
-		ItemStack itemstack = RecipesMixingBowl.smelting().getSmeltingResult(mixingbowlInv[0].getItem());
+		// Now see if it matches an existing recipe
+		
+		mixResult = CraftingManagerCrafter.getInstance().getMatchingRecipe(currentRecipe);
 
-		if (itemstack == null)
-		{
-			return false;
-		}
 
-		if (mixingbowlInv[2] == null)
+		//		System.out.println("Result: " + itemstack);
+
+		/* No recipe */
+		if (mixResult == null) return false;
+
+		/* Recipe, and empty o/p slot */
+		if (mixingbowlInv[9] == null) return true;
+
+		//		System.out.println("Inv[9]: " + mixingbowlInv[9]);
+		//        if (!this.furnaceItemStacks[2].isItemEqual(itemstack)) return false;
+
+		if (!this.mixingbowlInv[9].isItemEqual(mixResult)) return false;
+
+		if (this.mixingbowlInv[9].stackSize < getInventoryStackLimit() && this.mixingbowlInv[9].stackSize < this.mixingbowlInv[9].getMaxStackSize())
 		{
 			return true;
 		}
 
-		if (!mixingbowlInv[2].isItemEqual(itemstack))
-		{
-			return false;
-		}
-
-		if (mixingbowlInv[2].stackSize < getInventoryStackLimit() && mixingbowlInv[2].stackSize < mixingbowlInv[2].getMaxStackSize())
-		{
-			return true;
-		}
-
-		return mixingbowlInv[2].stackSize < itemstack.getMaxStackSize();
+		return this.mixingbowlInv[9].stackSize < mixResult.getMaxStackSize();
 	}
 
 	/**
 	 * Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
 	 */
-	public void smeltItem()
+	public void mixItem()
 	{
-		if (this.canSmelt())
+		if (this.canMix())
 		{
-			ItemStack var1 = RecipesMixingBowl.smelting().getSmeltingResult(this.mixingbowlInv[0].getItem());
-			if (this.mixingbowlInv[2] == null)
+
+
+			ItemStack var1 = getMixResult(); //MixingBowlRecipes.getSmeltingResult(this.mixingbowlInv[0].getItem());
+
+			if (this.mixingbowlInv[9] == null)
 			{
-				this.mixingbowlInv[2] = var1.copy();
+				this.mixingbowlInv[9] = var1.copy();
 			}
-			else if (this.mixingbowlInv[2] == var1)
+			else if (this.mixingbowlInv[9] == var1)
 			{
-				++this.mixingbowlInv[2].stackSize;
+				++this.mixingbowlInv[9].stackSize;
 			}
+			/* Now take from crafting inventory
+			 * 
+			 */
+			//			List recipes = CraftingManagerCrafter.getInstance().getRecipeList();
+			//			for (int k = 0; k < recipes.size(); k++) {
+			//				IRecipe irecipe = (IRecipe)recipes.get(k);
+			//				System.out.println("Irecipe: " + irecipe);
+			for (int i=0; i<9; i++) {
+				//				System.out.println("decr: " + i + ", " + mixingbowlInv[i]); // + ", " + mixingbowlInv[i].stackSize);
+				if (mixingbowlInv[i] != null && mixingbowlInv[i].stackSize > 0) decrStackSize(i,1); // WRONG INV!
+			}
+
+			/*
+
 			--this.mixingbowlInv[0].stackSize;
 			if (this.mixingbowlInv[0].stackSize == 0)
 			{
 				Item var2 = this.mixingbowlInv[0].getItem().getContainerItem();
 				this.mixingbowlInv[0] = var2 == null ? null : new ItemStack(var2);
 			}
+			 */
 		}
 	}
 
-	/**
-	 * Return true if item is a fuel source (getItemBurnTime() > 0).
-	 */
-	public static boolean isItemFuel(ItemStack par0ItemStack)
-	{
-		return getItemBurnTime(par0ItemStack) > 0;
+	public ItemStack getMixResult() {
+		return mixResult;
 	}
 
-	/**
-	 * Returns the number of ticks that the supplied fuel item will keep the furnace burning, or 0 if the item isn't
-	 * fuel
-	 */
-	public static int getItemBurnTime(ItemStack par1ItemStack)
-	{
-		if (par1ItemStack == null)
-		{
-			return 0;
-		}
-		else
-		{
-			return 150;
-		}
-
-		/*
-		int i = par1ItemStack.getItem().itemID;
-
-		if (i < 256 && Block.blocksList[i].blockMaterial == Material.wood)
-		{
-			return 300;
-		}
-
-		if (i == Item.stick.itemID)
-		{
-			return 100;
-		}
-
-		if (i == Item.coal.itemID)
-		{
-			return 1600;
-		}
-
-		if (i == Item.bucketLava.itemID)
-		{
-			return 20000;
-		}
-
-		if (i == Block.sapling.blockID)
-		{
-			return 100;
-		}
-
-		if (i == Item.blazeRod.itemID)
-		{
-			return 2400;
-		}
-		if (i == Block.dirt.blockID)
-		{
-			return 200;
-		}
-		else
-		{
-			return ModLoader.addAllFuel(par1ItemStack.itemID, par1ItemStack.getItemDamage());
-		}
-		 */
+	public void setMixResult(ItemStack mixResult) {
+		this.mixResult = mixResult;
 	}
-
 
 	public void openChest()
 	{
@@ -502,7 +421,7 @@ public class TileEntityMixingBowl extends TileEntity implements IInventory{
 
 	public boolean isActive()
 	{
-	return this.isActive;
+		return this.isActive;
 	}
-	
+
 }

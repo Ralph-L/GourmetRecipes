@@ -16,13 +16,12 @@ import net.minecraft.world.World;
 
 public class GuiMixingBowl extends GuiContainer {
 
-	private TileEntityMixingBowl mixingbowlInventory;
-
-	public GuiMixingBowl(InventoryPlayer inventory, TileEntityMixingBowl gold)
+	private TileEntityMixingBowl tileEntity;
+	
+	public GuiMixingBowl(InventoryPlayer inventory, TileEntityMixingBowl tile)
 	{
-		super(new ContainerMixingBowl(inventory, gold));
-//		System.out.println("GuiMixingBowl construct");
-		mixingbowlInventory = gold;
+		super(new ContainerMixingBowl(inventory, tile));
+		tileEntity = tile;
 	}
 
 	/**
@@ -31,10 +30,10 @@ public class GuiMixingBowl extends GuiContainer {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int par1, int par2)
 	{
+		String txt = "Mixing Bowl: ";
+		txt = txt + tileEntity.mixingbowlMixedTime + "/" + tileEntity.mixingbowlMixTime;
         //draw text and stuff here
         //the parameters for drawString are: string, x, y, color
-		String txt = new String("Mixing Bowl");
-		txt = txt + ": " + mixingbowlInventory.getBurnTimeRemainingScaled(14);
 		fontRendererObj.drawString(txt, 8, 6, 4210752);
         //draws "Inventory" or your regional equivalent
 		fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, (ySize - 96) + 2, 0xffffff);
@@ -49,22 +48,26 @@ public class GuiMixingBowl extends GuiContainer {
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		final ResourceLocation texture = new ResourceLocation("gourmetrecipes:textures/gui/mixingbowlgui.png");
 		mc.renderEngine.bindTexture(texture);
+		/* Calculate how to center image on screen */
 		int j = (width - xSize) / 2;
 		int k = (height - ySize) / 2;
+		/* Draw the background
+		 * j,k top left where image will go
+		 * 0,0 Offset in .png file where image obtained from
+		 * x,y size of image to draw */
 		drawTexturedModalRect(j, k, 0, 0, xSize, ySize);
-		System.out.println("drawTexturedModalRect: " + xSize + ", " + ySize);
 
-		/*
-		 * Render the mixing progress bar animation
-		 */
-		if (mixingbowlInventory.isBurning())
+		/* Render the mixing progress bar animation */
+		if (tileEntity.isMixing())
 		{
-			int burn = mixingbowlInventory.getBurnTimeRemainingScaled(14);
-			drawTexturedModalRect(j + 85, k+100, 175, 0, 15, burn);
+			/* This calculates the pixel width of the coloured box to draw */
+			int w = tileEntity.getMixProgress() * 43 / 100;
+			/* j+76, k+20 marks the top left of where the progress bar is to be placed
+			 * 176,60 marks the top left of the coloured bar to copy
+			 * w,17 is width,height of coloured bar to copy, remember h+ is down
+			 * */
+			drawTexturedModalRect(j + 76, k + 20, 176, 60, w, 17);
 		}
-
-//		int update = mixingbowlInventory.getCookProgressScaled(16);
-//		drawTexturedModalRect(j+ 73, k+36, 176, 77,-update , -update);
 	}
 
 }

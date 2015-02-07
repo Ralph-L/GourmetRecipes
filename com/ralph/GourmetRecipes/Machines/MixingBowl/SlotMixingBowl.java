@@ -9,13 +9,13 @@ import net.minecraft.util.MathHelper;
 
 public class SlotMixingBowl extends Slot {
 	/** The player that is using the GUI where this slot resides. */
-	private EntityPlayer thePlayer;
+	private EntityPlayer player;
 	private int field_75228_b;
 	public SlotMixingBowl(EntityPlayer par1EntityPlayer, IInventory par2IInventory, int par3, int par4, int par5)
 	{
 		 super(par2IInventory, par3, par4, par5);
-		 this.thePlayer = par1EntityPlayer;
-		 System.out.println("SlotMixingBowl: " + par1EntityPlayer + ", " + par2IInventory + ", " + par3 + ", " + par4 + ", " + par5);
+		 this.player = par1EntityPlayer;
+//		 System.out.println("SlotMixingBowl: " + par1EntityPlayer + ", " + par2IInventory + ", " + par3 + ", " + par4 + ", " + par5);
 	}
 	/**
 		 * Check if the stack is a valid item for this slot. Always true beside for the armor slots.
@@ -58,8 +58,8 @@ public class SlotMixingBowl extends Slot {
 		 */
 	protected void onCrafting(ItemStack par1ItemStack)
 	{
-		 par1ItemStack.onCrafting(this.thePlayer.worldObj, this.thePlayer, this.field_75228_b);
-		 if (!this.thePlayer.worldObj.isRemote)
+		 par1ItemStack.onCrafting(this.player.worldObj, this.player, this.field_75228_b);
+		 if (!this.player.worldObj.isRemote)
 		 {
 			 int var2 = this.field_75228_b;
 			 float var3 = 0.8F; // RecipesGoldOven.smelting().getExperience(par1ItemStack.itemID);
@@ -81,7 +81,7 @@ public class SlotMixingBowl extends Slot {
 			 {
 				 var4 = EntityXPOrb.getXPSplit(var2);
 				 var2 -= var4;
-				 this.thePlayer.worldObj.spawnEntityInWorld(new EntityXPOrb(this.thePlayer.worldObj, this.thePlayer.posX, this.thePlayer.posY + 0.5D, this.thePlayer.posZ + 0.5D, var4));
+				 this.player.worldObj.spawnEntityInWorld(new EntityXPOrb(this.player.worldObj, this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, var4));
 			 }
 		 }
 		 this.field_75228_b = 0;
