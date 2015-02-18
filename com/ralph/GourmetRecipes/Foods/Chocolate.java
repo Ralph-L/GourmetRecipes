@@ -21,7 +21,7 @@ public class Chocolate extends ItemFood {
 		// TODO Auto-generated constructor stub
 	    super(healAmount, saturationModifier, wolvesFavorite);
 	    this.setUnlocalizedName(unlocalizedName);
-	    System.out.println("[GourmetRecipes]: " + GourmetRecipes.MODID + ":" + unlocalizedName);
+//	    System.out.println("[GourmetRecipes]: " + GourmetRecipes.MODID + ":" + unlocalizedName);
 	    this.setTextureName(GourmetRecipes.MODID + ":" + unlocalizedName);
 	    this.setCreativeTab(CreativeTabs.tabFood);
 	    this.effects = effects;

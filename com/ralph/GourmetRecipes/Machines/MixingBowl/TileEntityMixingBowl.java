@@ -50,6 +50,21 @@ public class TileEntityMixingBowl extends TileEntity implements IInventory{
 		this.canUpdate();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see net.minecraft.tileentity.TileEntity#getDescriptionPacket()
+	 * @see http://www.minecraftforge.net/wiki/Custom_Tile_Entity_Renderer
+	public Packet getDescriptionPacket() {
+        NBTTagCompound nbtTag = new NBTTagCompound();
+        this.writeToNBT(nbtTag);
+        return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 1, nbtTag);
+        }
+
+        public void onDataPacket(INetworkManager net, Packet132TileEntityData packet) {
+        readFromNBT(packet.customParam1);
+        }
+       */
+       
 	/**
 	 * Returns the number of slots in the inventory.
 	 */

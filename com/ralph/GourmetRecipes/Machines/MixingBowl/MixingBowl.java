@@ -4,9 +4,14 @@ import java.util.Random;
 
 import com.ralph.GourmetRecipes.GourmetRecipes;
 
+import cpw.mods.fml.client.registry.RenderingRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
@@ -24,15 +29,18 @@ public class MixingBowl extends BlockContainer {
 	 * Is the random generator used by furnace to drop the inventory contents in random directions.
 	 */
 	private Random goldRand;
-
+	private static int renderId;
 
 	public MixingBowl(Material material) {
 		super(material);
 		this.setHardness(1.0F);
 		this.setStepSound(Block.soundTypeGravel);
 		this.setBlockName("mixingBowl");
-		this.setBlockTextureName("gourmetrecipes:mixingbowl");
+//		this.setBlockTextureName("gourmetrecipes:mixingbowl");
 		this.setCreativeTab(CreativeTabs.tabBlock);
+//		int renderId = RenderingRegistry.getNextAvailableRenderId();
+//		System.out.println("rendering Id: " + renderId);
+//		RenderingRegistry.registerBlockHandler();	// **********************************
 	}
 
 
@@ -116,4 +124,39 @@ public class MixingBowl extends BlockContainer {
 		}
 		super.breakBlock(par1World, par2, par3, par4, par5, par6);
 	}
+	
+	/*
+	@SideOnly(Side.CLIENT)
+	public void registerBlockIcons(IIconRegister iconRegister) {
+		this.blockIcon = iconRegister.registerIcon("modid:textures/model/texturename.png");
+	}*/
+
+	
+	public static int getRenderId() {
+		return -1; //renderId;
+	}
+	
+	@Override
+	public int getRenderType() {
+		return -1; //renderId;
+		
+	}
+	
+	@Override
+    public boolean renderAsNormalBlock()
+    {
+        return false;
+    }
+	
+	@Override
+    public boolean isOpaqueCube()
+    {
+        return false;
+    }
+
+	@SideOnly(Side.CLIENT)
+	public void registerBlockIcons(IIconRegister iconRegister) {
+		this.blockIcon = iconRegister.registerIcon("GourmetRecipes:mixingbowl");
+	}
+
 }

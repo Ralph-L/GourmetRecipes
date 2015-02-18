@@ -1,0 +1,444 @@
+/**
+TheMoleTractor: 
+Well each instance of these blocks that I'm attempting to render in hand has a TileEntity, Render (TESR), Model, ItemRender (rendering in hand class), and Block class associated with them, as well as a Base and ClientProxy class with code to initialize and register them. I'm going to post the Working and Un-Working code classes of Render, ItemRender, TileEntity, and the ClientProxy because I feel those are where something is wonky. I am happy to post any others though.
+*/
+
+
+//Working Block
+/** TileEntity: */
+Hiddenpackage lavaInfusionTileEntity;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntity;
+
+public class TileEntityMagmaFoundation extends TileEntity
+{
+   private int chargeCount = 0; //Number of charges held
+   
+   public int getChargeCount()
+   {
+      return chargeCount;
+   }
+   
+   @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+        this.chargeCount = nbt.getInteger("chargeCount");
+    }
+
+   @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+        nbt.setInteger("chargeCount", chargeCount);
+    }
+   
+   @Override
+   public Packet getDescriptionPacket()
+   {
+      NBTTagCompound nbtTag = new NBTTagCompound();
+      this.writeToNBT(nbtTag);
+      return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 1, nbtTag);
+   }
+
+   @Override
+   public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+   {
+      readFromNBT(packet.func_148857_g());
+   }
+    
+   //Non Forge Related Methods Below
+   public void setChargeCount(int that)
+   {
+      this.chargeCount = that;
+   }
+   
+   public void addCharges(int amt)
+   {
+      this.chargeCount += amt;
+   }
+   
+   public void useCharges(int amt)
+   {
+      this.chargeCount -= amt;
+   }
+}
+
+/** Render: */
+Hiddenpackage lavaInfusionRenderers;
+
+import lavaInfusionMain.Base;
+import lavaInfusionModels.ModelMagmaFoundation;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+
+import org.lwjgl.opengl.GL11;
+
+public class RenderMagmaFoundation extends TileEntitySpecialRenderer
+{
+   private static final ResourceLocation texture = new ResourceLocation(Base.MODID + ":" + "textures/tileentity/magmaFoundation.png");
+   private ModelMagmaFoundation model;
+   
+   public RenderMagmaFoundation()
+   {
+      this.model = new ModelMagmaFoundation();
+   }
+   
+   @Override
+   public void renderTileEntityAt(TileEntity te, double x, double y, double z, float f)
+   {
+      GL11.glPushMatrix(); //rotations and translates
+      GL11.glTranslatef((float)x + 0.5F, (float)y + 1.5F, (float)z + 0.5F);
+      GL11.glRotatef(180, 0.0F, 0.0F, 1.0F);
+      
+      this.bindTexture(texture);
+      
+      GL11.glPushMatrix(); //rendering model
+      this.model.renderModel(0.0625F);
+      
+      GL11.glPopMatrix();
+      GL11.glPopMatrix();
+   }
+}
+
+/** ItemRenderer: */
+Hiddenpackage lavaInfusionRenderers;
+
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.IItemRenderer;
+
+import org.lwjgl.opengl.GL11;
+
+public class ItemRenderMagmaFoundation implements IItemRenderer
+{
+   TileEntitySpecialRenderer render;
+   private TileEntity te;
+
+   public ItemRenderMagmaFoundation(TileEntitySpecialRenderer render, TileEntity te)
+   {
+       this.render = render;
+       this.te = te;
+   }
+
+   @Override
+   public boolean handleRenderType(ItemStack item, ItemRenderType type)
+   {
+      return true;
+   }
+
+   @Override
+   public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper)
+   {
+      return true;
+   }
+
+   @Override
+   public void renderItem(ItemRenderType type, ItemStack item, Object... data)
+   {
+      if (type == IItemRenderer.ItemRenderType.ENTITY)
+      {
+         GL11.glTranslatef(-0.5F, 0.0F, -0.5F);
+      }
+      GL11.glScalef(1.5F, 1.5F, 1.5F);
+      
+      this.render.renderTileEntityAt(this.te, 0.0D, 0.0D, 0.0D, 0.0F);
+   }
+}
+
+/** Client Proxy: */
+Hiddenpackage lavaInfusionMain;
+
+import lavaInfusionRenderers.ItemRenderMagmaFoundation;
+import lavaInfusionRenderers.ItemRenderStonePedestal;
+import lavaInfusionRenderers.RenderMagmaFoundation;
+import lavaInfusionRenderers.RenderStonePedestal;
+import lavaInfusionTileEntity.TileEntityMagmaFoundation;
+import lavaInfusionTileEntity.TileEntityStonePedestal;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.item.Item;
+import net.minecraftforge.client.MinecraftForgeClient;
+import cpw.mods.fml.client.registry.ClientRegistry;
+
+
+public class ClientProxy extends CommonProxy
+{
+   public void registerRenderThings()
+   {
+      /**TileEntity Registeries**/
+      
+      //Stone Pedestal Registry
+      TileEntitySpecialRenderer stonePedestal = new RenderStonePedestal();
+      ClientRegistry.bindTileEntitySpecialRenderer(TileEntityStonePedestal.class, stonePedestal);
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Base.stonePedestal), new ItemRenderStonePedestal(stonePedestal, new TileEntityStonePedestal()));
+        
+      //Magma Foundation Registry
+      TileEntitySpecialRenderer magmaFoundation = new RenderMagmaFoundation();
+      ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMagmaFoundation.class, magmaFoundation);
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Base.magmaFoundation), new ItemRenderMagmaFoundation(magmaFoundation, new TileEntityMagmaFoundation()));
+   }
+   
+   public void registerTESR()
+   {
+      
+   }
+}
+
+// Non-Working Block
+/** TileEntity:*/
+Hiddenpackage botanyTileEntity;
+
+import net.minecraft.tileentity.TileEntity;
+
+public class TileEntityPowerStaff extends TileEntity {}
+
+/** Render: */
+Hiddenpackage botanyRenderers;
+
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+
+import org.lwjgl.opengl.GL11;
+
+import botanyMain.Base;
+import botanyModels.ModelPowerBulb;
+import botanyModels.ModelPowerStaff;
+
+public class RenderPowerStaff extends TileEntitySpecialRenderer
+{
+   private static final ResourceLocation stickTexture = new ResourceLocation(Base.modid + ":" + "textures/tileentity/powerStaff.png");
+   private static final ResourceLocation bulbTexture = new ResourceLocation(Base.modid + ":" + "textures/tileentity/powerBulb.png");
+
+   private ModelPowerStaff stick;
+   private ModelPowerBulb bulb;
+   
+   private float yRotateAngle = 0.10F;
+   private float xOffset = -0.25F;
+   private float speed = 1.0F;
+   private boolean goUp = false;
+   
+   public RenderPowerStaff()
+   {
+      this.stick = new ModelPowerStaff();
+      this.bulb = new ModelPowerBulb();
+   }
+   
+   @Override
+   public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float scale)
+   {
+      GL11.glPushMatrix();
+      GL11.glTranslatef((float)x, (float)y, (float)z);
+
+      GL11.glPushMatrix();
+      GL11.glTranslatef(0.5F, 1.5F, 0.5F);
+      GL11.glScalef(-1.0F, -1.0F, 1.0F);
+
+      //Render stick
+      GL11.glPushMatrix();
+      this.bindTexture(stickTexture);
+      this.stick.renderModel(0.0625F);
+      GL11.glPushMatrix();
+      GL11.glRotatef(180F, 0.0F, 0.0F, 1.0F);
+      GL11.glPopMatrix();
+      
+      this.bindTexture(bulbTexture);
+      
+      //Offsets Below
+      GL11.glPushMatrix();
+      
+      if(!goUp)
+      {
+         xOffset += 0.0005F;
+         
+         if(xOffset >= -0.25F)
+            goUp = true;
+      }
+      else if(goUp)
+      {
+         xOffset -= 0.0005F;
+         
+         if(xOffset <= -0.35F)
+            goUp = false;
+      }
+      GL11.glTranslatef(0.0F, xOffset, 0.0F);
+      
+      //Rotations Below
+      GL11.glPushMatrix();
+      yRotateAngle += scale * speed;
+      if(yRotateAngle <= 360)
+         yRotateAngle -= 360;
+      GL11.glRotatef(yRotateAngle, 0.0F, 1.0F, 0.0f);
+      
+      this.bulb.renderModel(0.0625F);
+      
+      GL11.glPopMatrix();
+      GL11.glPopMatrix();
+      GL11.glPopMatrix();
+      GL11.glPopMatrix();
+      
+      GL11.glPopMatrix();
+   }
+}
+
+/** ItemRenderer: */
+Hiddenpackage botanyRenderers;
+
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.IItemRenderer;
+
+import org.lwjgl.opengl.GL11;
+
+public class ItemRenderPowerStaff implements IItemRenderer
+{
+   TileEntitySpecialRenderer render;
+   private TileEntity te;
+
+   public ItemRenderPowerStaff(TileEntitySpecialRenderer render, TileEntity te)
+   {
+       this.render = render;
+       this.te = te;
+   }
+
+   @Override
+   public boolean handleRenderType(ItemStack item, ItemRenderType type)
+   {
+      return true;
+   }
+
+   @Override
+   public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper)
+   {
+      return true;
+   }
+
+   @Override
+   public void renderItem(ItemRenderType type, ItemStack item, Object... data)
+   {
+      if (type == IItemRenderer.ItemRenderType.ENTITY)
+      {
+         GL11.glTranslatef(-0.5F, 0.0F, -0.5F);
+      }
+      GL11.glScalef(1.5F, 1.5F, 1.5F);
+      
+      this.render.renderTileEntityAt(this.te, 0.0D, 0.0D, 0.0D, 0.0F);
+   }
+}
+
+/** ClientProxy: */
+Hiddenpackage botanyMain;
+
+import net.minecraft.client.renderer.entity.RenderSnowball;
+import botanyEntity.EntityArrowFish;
+import botanyEntity.EntityBarbedSpike;
+import botanyEntity.EntityBasilisk;
+import botanyEntity.EntityFungleCrab;
+import botanyEntity.EntityGreanBaen;
+import botanyEntity.EntityMongrel;
+import botanyEntity.EntityPrizeRunner;
+import botanyEntity.EntitySapphireBerry;
+import botanyEntity.EntitySapphireLawncher;
+import botanyEntity.EntitySporeRay;
+import botanyEntity.EntityWanderingShoot;
+import botanyModels.ModelArrowFish;
+import botanyModels.ModelBarbedSpike;
+import botanyModels.ModelBasilisk;
+import botanyModels.ModelFungleCrab;
+import botanyModels.ModelGreanBaen;
+import botanyModels.ModelMongrel;
+import botanyModels.ModelPrizeRunner;
+import botanyModels.ModelSapphireLawncher;
+import botanyModels.ModelSporeRay;
+import botanyModels.ModelWanderingShoot;
+import botanyRenderers.RenderArrowFish;
+import botanyRenderers.RenderBarbedSpike;
+import botanyRenderers.RenderBasilisk;
+import botanyRenderers.RenderCropStaff;
+import botanyRenderers.RenderFungleCrab;
+import botanyRenderers.RenderGreanBaen;
+import botanyRenderers.RenderLifeBasin;
+import botanyRenderers.RenderMongrel;
+import botanyRenderers.RenderPowerBulb;
+import botanyRenderers.RenderPowerStaff;
+import botanyRenderers.RenderPrizeRunner;
+import botanyRenderers.RenderSapphireCrop;
+import botanyRenderers.RenderSapphireLawncher;
+import botanyRenderers.RenderSporeRay;
+import botanyRenderers.RenderWanderingShoot;
+import botanyTileEntity.TileEntityCropStaff;
+import botanyTileEntity.TileEntityLifeBasin;
+import botanyTileEntity.TileEntityPowerBulb;
+import botanyTileEntity.TileEntityPowerStaff;
+import botanyTileEntity.TileEntitySapphireCrop;
+import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.client.registry.RenderingRegistry;
+
+public class ClientProxy extends CommonProxy
+{
+   public void registerRenderThings()
+   {
+      /**Mob Rendering**/
+      RenderingRegistry.registerEntityRenderingHandler(EntityGreanBaen.class, new RenderGreanBaen(new ModelGreanBaen(), 0.5F));
+      RenderingRegistry.registerEntityRenderingHandler(EntityFungleCrab.class, new RenderFungleCrab(new ModelFungleCrab(), 0.5F));
+      RenderingRegistry.registerEntityRenderingHandler(EntityPrizeRunner.class, new RenderPrizeRunner(new ModelPrizeRunner(), 0.5F));
+      RenderingRegistry.registerEntityRenderingHandler(EntityBarbedSpike.class, new RenderBarbedSpike(new ModelBarbedSpike(), 0.5f));
+      RenderingRegistry.registerEntityRenderingHandler(EntityArrowFish.class, new RenderArrowFish(new ModelArrowFish(), 0.5F));
+      RenderingRegistry.registerEntityRenderingHandler(EntityMongrel.class, new RenderMongrel(new ModelMongrel(), 0.5F));
+      RenderingRegistry.registerEntityRenderingHandler(EntitySapphireLawncher.class, new RenderSapphireLawncher(new ModelSapphireLawncher(), 0.5F));
+      RenderingRegistry.registerEntityRenderingHandler(EntityWanderingShoot.class, new RenderWanderingShoot(new ModelWanderingShoot(), 0.5F));
+      RenderingRegistry.registerEntityRenderingHandler(EntitySporeRay.class, new RenderSporeRay(new ModelSporeRay(), 0.5F));
+      RenderingRegistry.registerEntityRenderingHandler(EntityBasilisk.class, new RenderBasilisk(new ModelBasilisk(), 0.5F));
+      
+      /**Tile Entity Rendering**/
+      //Power Staff
+//      TileEntitySpecialRenderer powerStaff = new RenderPowerStaff();
+      ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPowerStaff.class, new RenderPowerStaff());
+//      MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Base.blockPowerStaff), new ItemRenderPowerStaff(powerStaff, new TileEntityPowerStaff()));
+      
+      //Sapphire Crop
+//      TileEntitySpecialRenderer sapphireCrop = new RenderSapphireCrop();
+      ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySapphireCrop.class, new RenderSapphireCrop());
+//      MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Base.blockSapphireCrop), new ItemRenderSapphireCrop(sapphireCrop, new TileEntitySapphireCrop()));
+      
+      //Power Bulb
+//      TileEntitySpecialRenderer powerBulb = new RenderPowerBulb();
+      ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPowerBulb.class, new RenderPowerBulb());
+//      MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Base.blockPowerBulb), new ItemRenderPowerBulb(powerBulb, new TileEntityPowerBulb()));
+      
+      //Crop Staff
+//      TileEntitySpecialRenderer cropStaff = new RenderCropStaff();
+      ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCropStaff.class, new RenderCropStaff());
+//      MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Base.blockCropStaff), new ItemRenderCropStaff(cropStaff, new TileEntityCropStaff()));
+      
+      //Life Basin
+//      TileEntitySpecialRenderer lifeBasin = new RenderLifeBasin();
+      ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLifeBasin.class, new RenderLifeBasin());
+//      MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(Base.blockLifeBasin), new ItemRenderLifeBasin(lifeBasin, new TileEntityPowerBulb()));
+      
+      /**Thrown Entity Rendering**/
+      //Entity Rendering
+      RenderingRegistry.registerEntityRenderingHandler(EntitySapphireBerry.class, new RenderSnowball(Base.itemSapphireBerry));
+   }
+   
+   @Override
+   public void registerSound()
+   {
+      
+   }
+}
+
+/*
+I may just be a little burnt out and missed something. Another note that may be important is the working one I built from scratch on the 1.7.10 gradle system while the not working one has been updated (over the past couple days) to 1.7.10 from 1.6.4. (Didn't use gradle previously)
+
+EDIT: Got it working, in my base class I was initializing my full TileEntity before I initialized the two TileEntities I was using in my Render class; resulting in a null for the Rendering Item in the one field.
+
+Bit of a further explanation, my block was not placed, a different block was placed and a second block was right clicked and "put on top" to create the TileEntity I was having issues with. Trying to rendering the productions TileEntity before I had initialized the TileEntity for the other two was causing the problems. Anyways, it all works now, solved! Huge thanks for Nephroid for the help pin pointing where and why the problem was occurring.
+*/
