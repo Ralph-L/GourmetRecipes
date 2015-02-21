@@ -1,0 +1,12 @@
+[
+  {
+    "modid": "GourmetRecipes",
+    "name": "Gourmet Recipes",
+    "description": "Dining for the refined Forge Steve",
+    "version": "1.0.0",
+    "mcversion": "1.7.10",
+    "url": "http://gourmetrecipes.ralph.com",
+    "authorList": [ "Ralph_L" ],
+    "requiredMods": [ "Forge" ]
+  }
+]
