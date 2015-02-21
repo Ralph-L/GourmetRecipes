@@ -1,13 +1,13 @@
-package com.ralph.GourmetRecipes.Machines.MixingBowl;
+package main.java.com.ralph.GourmetRecipes.Machines.MixingBowl;
 
 import java.util.Random;
 
-import com.ralph.GourmetRecipes.GourmetRecipes;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import main.java.com.ralph.GourmetRecipes.GourmetRecipes;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;

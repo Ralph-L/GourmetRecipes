@@ -1,11 +1,11 @@
-package com.ralph.GourmetRecipes;
+package main.java.com.ralph.GourmetRecipes;
 
-import com.ralph.GourmetRecipes.Foods.Chocolate;
-import com.ralph.GourmetRecipes.Foods.Meringue;
-import com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowl;
-import com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowlGuiHandler;
-import com.ralph.GourmetRecipes.Machines.MixingBowl.TileEntityMixingBowl;
 
+import main.java.com.ralph.GourmetRecipes.Foods.Chocolate;
+import main.java.com.ralph.GourmetRecipes.Foods.Meringue;
+import main.java.com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowl;
+import main.java.com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowlGuiHandler;
+import main.java.com.ralph.GourmetRecipes.Machines.MixingBowl.TileEntityMixingBowl;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -43,7 +43,7 @@ public class GourmetRecipes {
 	public static GourmetRecipes instance;
 
 	// Says where the client and server 'proxy' code is loaded.
-	@SidedProxy(clientSide="com.ralph.GourmetRecipes.client.ClientProxy", serverSide="com.ralph.GourmetRecipes.CommonProxy")
+	@SidedProxy(clientSide="main.java.com.ralph.GourmetRecipes.client.ClientProxy", serverSide="main.java.com.ralph.GourmetRecipes.CommonProxy")
 	public static CommonProxy proxy;
 
 	@EventHandler // used in 1.6.2

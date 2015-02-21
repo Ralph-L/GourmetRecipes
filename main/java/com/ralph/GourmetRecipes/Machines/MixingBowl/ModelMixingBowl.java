@@ -1,4 +1,4 @@
-package com.ralph.GourmetRecipes.Machines.MixingBowl;
+package main.java.com.ralph.GourmetRecipes.Machines.MixingBowl;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;

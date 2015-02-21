@@ -1,9 +1,9 @@
-package com.ralph.GourmetRecipes.Machines.MixingBowl;
+package main.java.com.ralph.GourmetRecipes.Machines.MixingBowl;
 
 import org.lwjgl.opengl.GL11;
 
-import com.ralph.GourmetRecipes.GourmetRecipes;
 
+import main.java.com.ralph.GourmetRecipes.GourmetRecipes;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCocoa;
 import net.minecraft.block.BlockDirectional;

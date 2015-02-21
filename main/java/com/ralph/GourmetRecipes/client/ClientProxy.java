@@ -1,11 +1,9 @@
-package com.ralph.GourmetRecipes.client;
+package main.java.com.ralph.GourmetRecipes.client;
 
-import com.ralph.GourmetRecipes.CommonProxy;
-import com.ralph.GourmetRecipes.GourmetRecipes;
-import com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowl;
-import com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowlRenderer;
-import com.ralph.GourmetRecipes.Machines.MixingBowl.TileEntityMixingBowl;
 
+import main.java.com.ralph.GourmetRecipes.CommonProxy;
+import main.java.com.ralph.GourmetRecipes.Machines.MixingBowl.MixingBowlRenderer;
+import main.java.com.ralph.GourmetRecipes.Machines.MixingBowl.TileEntityMixingBowl;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;

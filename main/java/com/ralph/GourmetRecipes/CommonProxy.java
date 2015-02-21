@@ -1,4 +1,4 @@
-package com.ralph.GourmetRecipes;
+package main.java.com.ralph.GourmetRecipes;
 
 public class CommonProxy {
     // Client stuff

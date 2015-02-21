@@ -1,7 +1,7 @@
-package com.ralph.GourmetRecipes.Foods;
+package main.java.com.ralph.GourmetRecipes.Foods;
 
-import com.ralph.GourmetRecipes.GourmetRecipes;
 
+import main.java.com.ralph.GourmetRecipes.GourmetRecipes;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemFood;

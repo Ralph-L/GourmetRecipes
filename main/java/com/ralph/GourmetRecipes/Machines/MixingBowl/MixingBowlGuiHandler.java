@@ -1,4 +1,4 @@
-package com.ralph.GourmetRecipes.Machines.MixingBowl;
+package main.java.com.ralph.GourmetRecipes.Machines.MixingBowl;
 
 
 import net.minecraft.entity.player.EntityPlayer;
